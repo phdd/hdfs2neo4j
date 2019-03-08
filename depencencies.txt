@@ -1,0 +1,16 @@
+aenum==2.1.2
+gremlinpython==3.4.0
+hdfs3==0.3.0
+neo4j-driver==1.6.3
+neomodel==3.3.1
+neotime==1.7.4
+numpy==1.16.2
+pkg-resources==0.0.0
+protobuf==3.7.0
+py4j==0.10.7
+pyarrow==0.12.1
+pyspark==2.4.0
+pytz==2018.9
+six==1.12.0
+snakebite==2.11.0
+tornado==4.5.3
