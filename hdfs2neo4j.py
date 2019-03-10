@@ -7,9 +7,6 @@ from neomodel import config
 from runner import HdfsToNeo4j
 
 if __name__ == "__main__":
-    config.DATABASE_URL = 'bolt://neo4j:neo@siti-server:7687'
-    directory = '/FSD/BMW-ISPA-Abzuege/PSDZ_2018-AUG-23/'
-
     parser = argparse.ArgumentParser(description='Import HDFS Directory to Neo4j.')
 
     parser.add_argument('--neo4j-url', type=str,
@@ -25,4 +22,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    HdfsToNeo4j(args.directory, args.timestamp).run()
+    HdfsToNeo4j(args.directory, args.timestamp).update()
