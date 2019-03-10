@@ -2,28 +2,37 @@
 # neomodel_install_labels models.py --db bolt://neo4j:neo4j@localhost:7687
 
 from neomodel import (StructuredNode, StructuredRel, StringProperty,
-                        RelationshipTo, DateTimeProperty)
+                        RelationshipTo, DateTimeProperty, IntegerProperty, db)
+
+from datetime import datetime
+
+
+def expire_all_states_to(version):
+    db.cypher_query("""
+        MATCH ()-[s:HAS_STATE]-()
+        WHERE s.until > {version}
+        SET s.until = {version}
+        RETURN s;
+    """, {
+        'version': (version - datetime(1970, 1, 1)).total_seconds()
+    })
 
 
 class HasState(StructuredRel):
 
-    valid_from = DateTimeProperty(db_property='from')
-    valid_to = DateTimeProperty(db_property='to')
+    since = DateTimeProperty()
+    until = DateTimeProperty()
 
 
 class State(StructuredNode):
 
-    pass
+    size = IntegerProperty()
 
 
 class Element(StructuredNode):
 
-    created = DateTimeProperty(default_now=True)
-
     path = StringProperty(unique_index=True, required=True)
     name = StringProperty()
-
-    state = RelationshipTo('State', 'HAS', model=HasState)
 
 
 class Directory(Element):
@@ -33,4 +42,4 @@ class Directory(Element):
 
 class File(Element):
 
-    pass
+    state = RelationshipTo('State', 'HAS_STATE', model=HasState)
