@@ -31,8 +31,10 @@ class State(StructuredNode):
 
 class Element(StructuredNode):
 
-    path = StringProperty(unique_index=True, required=True)
-    name = StringProperty()
+    source = ''
+
+    path = StringProperty(required=True)
+    name = StringProperty(required=True)
 
 
 class Directory(Element):

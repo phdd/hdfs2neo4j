@@ -17,9 +17,12 @@ if __name__ == "__main__":
         dest='timestamp', default=int(now()),
         help='Unix epoch timestamp for this version (default is now)')
 
+    parser.add_argument('name', type=str,
+        help='Symbolic import name (all nodes will be it\'s children)')
+
     parser.add_argument('directory', type=str,
         help='HDFS Directory to import')
 
     args = parser.parse_args()
 
-    HdfsToNeo4j(args.directory, args.timestamp).update()
+    HdfsToNeo4j(args.name, args.directory, args.timestamp).update()

@@ -8,8 +8,9 @@ def eternity():
 
 class HdfsToNeo4j:
 
-    def __init__(self, directory, version):
+    def __init__(self, import_name, directory, version):
         self._hdfs = hdfs_connector()
+        self._import_name = import_name
         self._directory = directory
         self._version = datetime.fromtimestamp(version)
 
@@ -19,29 +20,37 @@ class HdfsToNeo4j:
         self._update_directory({ 'name': self._directory })
 
     def _name_from(self, path):
-        path_elements = path.split('/')
-
-        if path_elements[-1:][0]: # handle trailing slashes
-            return path_elements[-1:][0]
+        if path is self._directory:
+            return self._import_name
         else:
-            return path_elements[-2:][0]
+            path_elements = path.split('/')
+            return path_elements[-1:][0].strip('/')
+
+    def _local_path_from(self, path):
+        return path.replace(self._directory, '/' + self._import_name)
 
     def _directory_from(self, path):
-        return Directory.get_or_create({
-            'path': path,
+        directory = Directory.get_or_create({
+            'path': self._local_path_from(path),
             'name': self._name_from(path)
         })[0]
 
+        directory.source = path
+        return directory
+
     def _file_from(self, path):
-        return File.get_or_create({
-            'path': path,
+        file = File.get_or_create({
+            'path': self._local_path_from(path),
             'name': self._name_from(path)
         })[0]
+
+        file.source = path
+        return file
 
     def _update_directory(self, node):
         directory = self._directory_from(node['name'])
 
-        for child in self._hdfs.ls(directory.path, detail=True):
+        for child in self._hdfs.ls(directory.source, detail=True):
             child_element = None
             
             if child['kind'] is 'directory':
@@ -56,7 +65,7 @@ class HdfsToNeo4j:
         return directory
 
     def _size_of(self, file):
-        return self._hdfs.info(file.path)['size']
+        return self._hdfs.info(file.source)['size']
 
     def _create_new_state_for(self, file):
         state = State(size=self._size_of(file)).save()
