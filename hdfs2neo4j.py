@@ -5,6 +5,7 @@ import argparse
 from time import time as now
 from neomodel import config
 from runner import HdfsToNeo4j
+from neomodel import config
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Import HDFS Directory to Neo4j.')
@@ -25,4 +26,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    config.DATABASE_URL = args.neo4j_url
     HdfsToNeo4j(args.name, args.directory, args.timestamp).update()
