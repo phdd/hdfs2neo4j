@@ -4,33 +4,39 @@
 from neomodel import (StructuredNode, StructuredRel, StringProperty,
                         RelationshipTo, DateTimeProperty, IntegerProperty, db)
 
-from datetime import datetime
-
 
 def expire_all_states_to(version):
     db.cypher_query("""
-        MATCH ()-[s:HAS_STATE]-()
-        WHERE s.until > {version}
-        SET s.until = {version}
-        RETURN s;
+        MATCH ()-[has_state:HAS_STATE]-()
+        WHERE has_state.until > localdatetime({version})
+        SET has_state.until = {version}
+        RETURN has_state;
     """, {
-        'version': (version - datetime(1970, 1, 1)).total_seconds()
+        'version': version
     })
 
 
 class HasState(StructuredRel):
 
-    since = DateTimeProperty()
-    until = DateTimeProperty()
+    since = StringProperty(required=True)
+    until = StringProperty(required=True)
 
 
 class State(StructuredNode):
+
+    """
+    original import directory root
+    """
+    root = StringProperty(required=True)
 
     size = IntegerProperty()
 
 
 class Element(StructuredNode):
 
+    """
+    helper for walking the directory tree
+    """
     source = ''
 
     path = StringProperty(required=True)
@@ -45,3 +51,23 @@ class Directory(Element):
 class File(Element):
 
     state = RelationshipTo('State', 'HAS_STATE', model=HasState)
+
+
+class XML(File):
+
+    pass
+
+
+class JAR(File):
+
+    pass
+
+
+class ZIP(File):
+
+    pass
+
+
+class Text(File):
+
+    pass

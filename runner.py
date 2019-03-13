@@ -1,18 +1,17 @@
-from models import Directory, File, Element, State, HasState, expire_all_states_to
+from models import *
 from pyarrow.hdfs import connect as hdfs_connector
-from datetime import datetime
 from neomodel import db
 
 def eternity():
-    return datetime(9999, 1, 1)
+    return "9999-01-01T00:00:00"
 
 class HdfsToNeo4j:
 
     def __init__(self, import_name, directory, version):
         self._hdfs = hdfs_connector()
         self._import_name = import_name
-        self._directory = directory
-        self._version = datetime.fromtimestamp(version)
+        self._directory = directory.rstrip('/')
+        self._version = version
 
     @db.write_transaction
     def update(self):
@@ -27,7 +26,7 @@ class HdfsToNeo4j:
             return path_elements[-1:][0].strip('/')
 
     def _local_path_from(self, path):
-        return path.replace(self._directory, '/' + self._import_name)
+        return path.replace(self._directory, '')
 
     def _directory_from(self, path):
         directory = Directory.get_or_create({
@@ -68,7 +67,11 @@ class HdfsToNeo4j:
         return self._hdfs.info(file.source)['size']
 
     def _create_new_state_for(self, file):
-        state = State(size=self._size_of(file)).save()
+        state = State(
+            size=self._size_of(file),
+            root=self._directory
+        ).save()
+
         file.state.connect(state, { 'since': self._version, 'until': eternity() })
 
     """
