@@ -29,7 +29,6 @@ class TextFileFactory(FileFactory):
 
     def create_file(self, properties):
         if self._match(properties['name'], '\.properties\W*'):
-            print(properties['name'], 'text')
             return TextFile.get_or_create(properties)[0]
         else:
             return self._use_other_type_for(properties)
@@ -39,7 +38,6 @@ class XMLFileFactory(FileFactory):
 
     def create_file(self, properties):
         if self._match(properties['name'], '\.xml\W*', '\.xsd\W*'):
-            print(properties['name'], 'xml')
             return XMLFile.get_or_create(properties)[0]
         else:
             return self._use_other_type_for(properties)
@@ -49,7 +47,6 @@ class JARFileFactory(FileFactory):
 
     def create_file(self, properties):
         if self._match(properties['name'], '\.jar\W*'):
-            print(properties['name'], 'jar')
             return JARFile.get_or_create(properties)[0]
         else:
             return self._use_other_type_for(properties)
@@ -59,7 +56,6 @@ class ZIPFileFactory(FileFactory):
 
     def create_file(self, properties):
         if self._match(properties['name'], '\.zip\W*'):
-            print(properties['name'], 'zip')
             return ZIPFile.get_or_create(properties)[0]
         else:
             return self._use_other_type_for(properties)
@@ -68,7 +64,6 @@ class BinaryFileFactory(FileFactory):
 
     def create_file(self, properties):
         if self._match(properties['name'], '\.bin\W*', '\.dll\W*', '\.exe\W*'):
-            print(properties['name'], 'binary')
             return BinaryFile.get_or_create(properties)[0]
         else:
             return self._use_other_type_for(properties)

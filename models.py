@@ -5,13 +5,14 @@ from neomodel import (StructuredNode, StructuredRel, StringProperty,
                         RelationshipTo, DateTimeProperty, IntegerProperty, db)
 
 
-def expire_all_states_to(version):
+def expire_all_states_to(import_name, version):
     db.cypher_query("""
-        MATCH ()-[has_state:HAS_STATE]-()
-        WHERE has_state.until > localdatetime({version})
+        MATCH (import:Directory)-[:CONTAINS*]->(:File)-[has_state:HAS_STATE]->(:State)
+        WHERE import.name = {import_name} AND import.path = ''
+            AND datetime(has_state.until) > datetime({version})
         SET has_state.until = {version}
-        RETURN has_state;
     """, {
+        'import_name': import_name,
         'version': version
     })
 
@@ -39,8 +40,8 @@ class Element(StructuredNode):
     """
     source = ''
 
-    path = StringProperty(required=True)
-    name = StringProperty(required=True)
+    path = StringProperty(required=True, indexed=True)
+    name = StringProperty(required=True, indexed=True)
 
 
 class Directory(Element):
