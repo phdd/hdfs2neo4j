@@ -1,8 +1,17 @@
+import subprocess
+ 
+ 
+def execute(args):
+    process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = process.communicate()
+    code =  process.returncode
+    return code, output, error
 
-class FileComparator(object):
 
-    def __init__(self, hdfs):
-        self._hdfs = hdfs
+def checksum_for(path):
+    code, checksum, error = execute(['hdfs', 'dfs', '-checksum', path])
 
-    def has_changed(self, last_state, file):
-        return last_state.size != self._hdfs.info(file.source)['size']
+    if code is not 0:
+        raise ValueError("cannot get checksum for '%s'" % (path,))
+    
+    return checksum.decode('utf8').split('\t')[-1]

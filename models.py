@@ -30,7 +30,7 @@ class State(StructuredNode):
     """
     root = StringProperty(required=True)
 
-    size = IntegerProperty()
+    checksum = StringProperty(required=True)
 
 
 class Element(StructuredNode):
@@ -50,6 +50,8 @@ class Directory(Element):
 
 
 class File(Element):
+
+    checksum = ''
 
     state = RelationshipTo('State', 'HAS_STATE', model=HasState)
 
