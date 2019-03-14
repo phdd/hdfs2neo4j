@@ -3,7 +3,6 @@ from neomodel import db
 
 from models import *
 from factories import *
-from utils import FileComparator
 
 def eternity():
     return "9999-01-01T00:00:00"
@@ -12,7 +11,6 @@ class HdfsToNeo4j:
 
     def __init__(self, import_name, directory, version):
         self._hdfs = hdfs_connector()
-        self._comparator = FileComparator(self._hdfs)
 
         self._import_name = import_name
         self._directory = directory.rstrip('/')
@@ -89,13 +87,19 @@ class HdfsToNeo4j:
         except IndexError:
             return None
 
+    """
+    see branch feature/checksum-file-comparison for better implementation
+    """
+    def _has_changed_since(self, last_state, file):
+        return last_state.size != self._hdfs.info(file.source)['size']
+
     def _update_state_of(self, file):
         last_state = self._last_state_of(file)
 
         if last_state: # file exists already
             last_state_rel = file.state.relationship(last_state)
 
-            if self._comparator.has_changed(last_state, file):
+            if self._has_changed_since(last_state, file):
                 self._create_new_state_for(file)
                 last_state_rel.until = self._version
             else:
