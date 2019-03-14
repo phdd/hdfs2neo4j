@@ -53,21 +53,26 @@ class File(Element):
     state = RelationshipTo('State', 'HAS_STATE', model=HasState)
 
 
-class XML(File):
+class TextFile(File):
 
     pass
 
 
-class JAR(File):
+class XMLFile(File):
 
     pass
 
 
-class ZIP(File):
+class JARFile(File):
 
     pass
 
 
-class Text(File):
+class ZIPFile(File):
+
+    pass
+
+
+class BinaryFile(File):
 
     pass

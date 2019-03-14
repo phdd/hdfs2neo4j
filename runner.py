@@ -1,6 +1,8 @@
-from models import *
 from pyarrow.hdfs import connect as hdfs_connector
 from neomodel import db
+
+from models import *
+from factories import *
 
 def eternity():
     return "9999-01-01T00:00:00"
@@ -12,6 +14,13 @@ class HdfsToNeo4j:
         self._import_name = import_name
         self._directory = directory.rstrip('/')
         self._version = version
+
+        self._fileFactory = XMLFileFactory(
+                            ZIPFileFactory(
+                            JARFileFactory(
+                            TextFileFactory(
+                            BinaryFileFactory(
+                            FileFactory())))))
 
     @db.write_transaction
     def update(self):
@@ -38,10 +47,10 @@ class HdfsToNeo4j:
         return directory
 
     def _file_from(self, path):
-        file = File.get_or_create({
+        file = self._fileFactory.create_file({
             'path': self._local_path_from(path),
             'name': self._name_from(path)
-        })[0]
+        })
 
         file.source = path
         return file
