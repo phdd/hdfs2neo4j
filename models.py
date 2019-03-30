@@ -43,6 +43,8 @@ class Element(StructuredNode):
     path = StringProperty(required=True, indexed=True)
     name = StringProperty(required=True, indexed=True)
 
+    import_name = StringProperty(required=True, indexed=True, db_property='import')
+
 
 class Directory(Element):
 
@@ -59,7 +61,7 @@ class TextFile(File):
     pass
 
 
-class XMLFile(File):
+class XMLFile(TextFile):
 
     pass
 

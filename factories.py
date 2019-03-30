@@ -37,7 +37,7 @@ class TextFileFactory(FileFactory):
 class XMLFileFactory(FileFactory):
 
     def create_file(self, properties):
-        if self._match(properties['name'], '\.xml\W*', '\.xsd\W*'):
+        if self._match(properties['name'], '\.xml\W*', '\.xsd\W*', '\.odx\W*'):
             return XMLFile.get_or_create(properties)[0]
         else:
             return self._use_other_type_for(properties)

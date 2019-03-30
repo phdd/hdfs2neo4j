@@ -23,7 +23,7 @@ class HdfsToNeo4j:
                             BinaryFileFactory(
                             FileFactory())))))
 
-    @db.write_transaction
+    #@db.transaction
     def update(self):
         expire_all_states_to(self._import_name, self._version)
         self._update_directory({ 'name': self._directory })
@@ -41,7 +41,8 @@ class HdfsToNeo4j:
     def _directory_from(self, path):
         directory = Directory.get_or_create({
             'path': self._local_path_from(path),
-            'name': self._name_from(path)
+            'name': self._name_from(path),
+            'import_name': self._import_name
         })[0]
 
         directory.source = path
@@ -50,7 +51,8 @@ class HdfsToNeo4j:
     def _file_from(self, path):
         file = self._fileFactory.create_file({
             'path': self._local_path_from(path),
-            'name': self._name_from(path)
+            'name': self._name_from(path),
+            'import_name': self._import_name
         })
 
         file.source = path
@@ -93,6 +95,7 @@ class HdfsToNeo4j:
     def _has_changed_since(self, last_state, file):
         return last_state.size != self._hdfs.info(file.source)['size']
 
+    @db.transaction
     def _update_state_of(self, file):
         last_state = self._last_state_of(file)
 
